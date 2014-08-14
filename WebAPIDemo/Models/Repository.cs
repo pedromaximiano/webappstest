@@ -2,37 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Http;
+using Breeze.ContextProvider;
+using Breeze.ContextProvider.EF6;
+using Newtonsoft.Json.Linq;
 
 namespace WebAPIDemo.Models
 {
     public class Repository : IRepository
     {
-        private WebAPIDemoContext dbContext;
+        private readonly EFContextProvider<WebAPIDemoContext> _contextProvider = new EFContextProvider<WebAPIDemoContext>();
 
-        public Repository(WebAPIDemoContext dbContext)
+        public string MetaData()
         {
-            this.dbContext = dbContext;
+            return _contextProvider.Metadata();
+        }
+        public SaveResult SaveChanges(JObject saveBundle)
+        {
+            return _contextProvider.SaveChanges(saveBundle);
         }
 
-        public IQueryable<Order> GetAllOrders()
+        public IQueryable<Book> Books()
         {
-            var orders = dbContext.Orders;
-
-            return orders;
+            return _contextProvider.Context.Books;
         }
 
-        public IQueryable<Order> GetAllOrdersWithDetails()
+        public IQueryable<Order> Orders()
         {
-            var orders = dbContext.Orders.Include("OrderDetails");
-
-            return orders;
-        }
-
-        public Order GetOrder(int id)
-        {
-            var order = dbContext.Orders.Include("OrderDetails.Book").FirstOrDefault(c => c.Id == id);
-
-            return order;
+            return _contextProvider.Context.Orders;
         }
     }
 }
